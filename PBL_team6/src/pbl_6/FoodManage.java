@@ -25,7 +25,7 @@ public class FoodManage {
             ActionListener task = new CheckTimeExpiration(this);
             Timer timer = new Timer(3600*1000, task);
             timer.setInitialDelay(0);
-            timer.start();
+            timer.start();//
         }
         
         public ArrayList<Food> getFoodList() {
