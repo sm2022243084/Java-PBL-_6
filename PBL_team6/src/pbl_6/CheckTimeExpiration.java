@@ -12,7 +12,6 @@ public class CheckTimeExpiration implements ActionListener{
 	public CheckTimeExpiration(FoodManage.MainFrame _foodManage) {
 		this.foodManage = _foodManage;
 	}
-	//ㄴㅁㅇㅁㄴㅇ
 	public void actionPerformed(ActionEvent e) {
 		ArrayList<Integer> alarmIndex = new ArrayList<>(); //알람 기능에 전달 배열
 		ArrayList<Food> foodList = foodManage.getFoodList();
