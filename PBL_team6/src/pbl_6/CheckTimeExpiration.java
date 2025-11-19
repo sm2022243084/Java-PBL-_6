@@ -21,7 +21,7 @@ public class CheckTimeExpiration implements ActionListener{
 		
 		for (int i = 0;i<foodList.size();i++) { //foodList 내부 객체 확인 반복문
 			Food food = foodList.get(i);
-			String foodName = food.name;
+			//String foodName = food.name;
 			LocalDate expirationDate = food.expirationDate;
 			
 			//day의 차이가 0밑으로 만들면> 날짜 안지남 + 곧 설정할 알림 날짜(현재 임시)보다 작은 경우 실행

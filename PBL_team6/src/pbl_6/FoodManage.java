@@ -25,12 +25,28 @@ public class FoodManage {
             ActionListener task = new CheckTimeExpiration(this);
             Timer timer = new Timer(3600*1000, task);
             timer.setInitialDelay(0);
-            timer.start();//
+            timer.start();
+            
+            this.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosing(WindowEvent e) {
+                    // X 버튼을 눌렀을 때 실행되는 부분
+                    System.out.println("프로그램을 종료합니다. DB 연결을 해제합니다...");
+                    
+                    // 여기서 우리가 만든 closeConnection()을 호출!
+                    connectJDBC.closeConnection(); 
+                    
+                    // 연결 해제 후 프로그램 진짜 종료
+                    System.exit(0); 
+                }
+            });
         }
         
         public ArrayList<Food> getFoodList() {
             return this.foodList;
         }
+        
+        
     }
 
     // 2. DB 연결 클래스
@@ -65,7 +81,7 @@ public class FoodManage {
                 
                 result.close();  
                 stmt.close();
-                connection.close();
+                //connection.close(); 현재 닫히는 방식을 windowListener를 통해서 프로그램 종료시 실행방식을 변환시킴
                 
             } catch(ClassNotFoundException e) {
                 System.out.println("JDBC 드러이버 로드 오류");
@@ -74,6 +90,16 @@ public class FoodManage {
                 System.out.println("DB 연결 오류");
                 e.printStackTrace();
             }	
+        }
+        public void closeConnection() {
+            try {
+                if (connection != null && !connection.isClosed()) {
+                    connection.close();
+                    System.out.println("DB 연결 종료");
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
     
