@@ -1,26 +1,14 @@
-package pbl_6.calendar;
-
+package pbl_6;
 import javax.swing.*;
+
+import pbl_6.FoodManage;
+
 import java.awt.*;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
-
-// Food 객체 (DB에서 받아오는 데이터 형태와 동일하게 구성)
-class Food {
-    private String name;
-    private LocalDate expireDate;
-
-    public Food(String name, LocalDate expireDate) {
-        this.name = name;
-        this.expireDate = expireDate;
-    }
-
-    public String getName() { return name; }
-    public LocalDate getExpireDate() { return expireDate; }
-}
 
 public class CalendarDB {
 
@@ -29,15 +17,15 @@ public class CalendarDB {
     private JLabel titleLabel;
     private int currentYear;
     private int currentMonth;
+    private FoodManage.MainFrame foodManage;
+    private ArrayList<Food> foodList;
 
-    // 🔥 DB 또는 DAO에서 받아올 전체 음식 목록
-    private List<Food> foodList = new ArrayList<>();
+    public CalendarDB(FoodManage.MainFrame _foodManage) {
 
-    public CalendarDB(List<Food> foodListFromDB) {
-
-        // DB에서 불러온 foodList 연결
-        if (foodListFromDB != null) {
-            this.foodList = foodListFromDB;
+    	if (foodManage != null) {
+            this.foodList = foodManage.getFoodList(); 
+        } else {
+            this.foodList = new ArrayList<>(); // 방어 코드
         }
 
         LocalDate today = LocalDate.now();
