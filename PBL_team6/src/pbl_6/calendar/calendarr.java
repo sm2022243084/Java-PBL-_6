@@ -4,32 +4,53 @@ import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 
-public class calendarr {
+// Food 객체 (DB에서 받아오는 데이터 형태와 동일하게 구성)
+class Food {
+    private String name;
+    private LocalDate expireDate;
+
+    public Food(String name, LocalDate expireDate) {
+        this.name = name;
+        this.expireDate = expireDate;
+    }
+
+    public String getName() { return name; }
+    public LocalDate getExpireDate() { return expireDate; }
+}
+
+public class CalendarDB {
+
     private JFrame frame;
     private JPanel calendarPanel;
     private JLabel titleLabel;
     private int currentYear;
     private int currentMonth;
 
-    public calendarr() {
+    // 🔥 DB 또는 DAO에서 받아올 전체 음식 목록
+    private List<Food> foodList = new ArrayList<>();
+
+    public CalendarDB(List<Food> foodListFromDB) {
+
+        // DB에서 불러온 foodList 연결
+        if (foodListFromDB != null) {
+            this.foodList = foodListFromDB;
+        }
+
         LocalDate today = LocalDate.now();
         currentYear = today.getYear();
         currentMonth = today.getMonthValue();
 
         frame = new JFrame("📅 유통기한 관리 캘린더");
         frame.setLayout(new BorderLayout());
-        frame.getContentPane().setBackground(new Color(245, 247, 250));
 
-        // 상단: 제목 + 이전/다음 버튼
+        // 상단 패널
         JPanel topPanel = new JPanel(new BorderLayout());
-        topPanel.setBackground(new Color(230, 235, 245));
-
         JButton prevButton = new JButton("◀");
         JButton nextButton = new JButton("▶");
-
-        styleButton(prevButton);
-        styleButton(nextButton);
 
         titleLabel = new JLabel(currentYear + "년 " + currentMonth + "월", JLabel.CENTER);
         titleLabel.setFont(new Font("맑은 고딕", Font.BOLD, 22));
@@ -39,39 +60,20 @@ public class calendarr {
         topPanel.add(nextButton, BorderLayout.EAST);
         frame.add(topPanel, BorderLayout.NORTH);
 
-        // 메인 컨테이너 (요일 + 달력)
-        JPanel mainPanel = new JPanel();
-        mainPanel.setLayout(new BorderLayout());
-
-        // 요일 표시
+        // 요일 패널
         JPanel dayPanel = new JPanel(new GridLayout(1, 7));
         String[] days = {"일", "월", "화", "수", "목", "금", "토"};
-
-        for (int i = 0; i < days.length; i++) {
-            JLabel dayLabel = new JLabel(days[i], JLabel.CENTER);
-            dayLabel.setFont(new Font("맑은 고딕", Font.BOLD, 15));
-            if (i == 0) dayLabel.setForeground(Color.RED);
-            else if (i == 6) dayLabel.setForeground(Color.BLUE);
-            dayPanel.add(dayLabel);
+        for (String d : days) {
+            JLabel lbl = new JLabel(d, JLabel.CENTER);
+            lbl.setFont(new Font("맑은 고딕", Font.BOLD, 14));
+            dayPanel.add(lbl);
         }
-        mainPanel.add(dayPanel, BorderLayout.NORTH);
+        frame.add(dayPanel, BorderLayout.CENTER);
 
-        // 달력 날짜 패널
+        // 달력 패널
         calendarPanel = new JPanel(new GridLayout(6, 7, 5, 5));
-        calendarPanel.setBackground(Color.WHITE);
-        mainPanel.add(calendarPanel, BorderLayout.CENTER);
+        frame.add(calendarPanel, BorderLayout.SOUTH);
 
-        frame.add(mainPanel, BorderLayout.CENTER);
-
-        // 하단 범례
-        JPanel legendPanel = new JPanel();
-        legendPanel.setBackground(new Color(240, 242, 245));
-        legendPanel.add(makeLegend(Color.GREEN, "정상"));
-        legendPanel.add(makeLegend(Color.ORANGE, "임박"));
-        legendPanel.add(makeLegend(Color.RED, "만료"));
-        frame.add(legendPanel, BorderLayout.SOUTH);
-
-        // 초기 달력 표시
         drawCalendar(currentYear, currentMonth);
 
         // 달 이동
@@ -93,81 +95,108 @@ public class calendarr {
             drawCalendar(currentYear, currentMonth);
         });
 
-        frame.setSize(750, 650);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(700, 550);
         frame.setVisible(true);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
+    // 📌 해당 날짜에 유통기한이 맞는 음식들 반환
+    private List<Food> getFoodsByDate(LocalDate date) {
+        List<Food> result = new ArrayList<>();
+
+        for (Food f : foodList) {
+            if (f.getExpireDate().equals(date)) {
+                result.add(f);
+            }
+        }
+        return result;
+    }
+
+    // 📌 달력 그리기
     private void drawCalendar(int year, int month) {
+
         calendarPanel.removeAll();
         titleLabel.setText(year + "년 " + month + "월");
 
         YearMonth yearMonth = YearMonth.of(year, month);
         int daysInMonth = yearMonth.lengthOfMonth();
         LocalDate firstDay = LocalDate.of(year, month, 1);
-        int startDay = firstDay.getDayOfWeek().getValue(); // 월(1)~일(7)
-        int dayIndex = (startDay == 7) ? 0 : startDay;
+        int startDay = firstDay.getDayOfWeek().getValue();
+        int dayIndex = (startDay == 7 ? 0 : startDay);
 
-        // 빈칸
+        // 빈칸 채우기
         for (int i = 0; i < dayIndex; i++) {
             calendarPanel.add(new JLabel(""));
         }
 
-        // 날짜 버튼
+        // 날짜 채우기
         for (int day = 1; day <= daysInMonth; day++) {
-            JButton dayButton = new JButton(String.valueOf(day));
-            dayButton.setFont(new Font("맑은 고딕", Font.PLAIN, 14));
-            dayButton.setOpaque(true);
-            dayButton.setBorderPainted(false);
 
-            // 색상 구분
-            if (day % 7 == 0) dayButton.setBackground(new Color(255, 102, 102)); // 만료
-            else if (day % 5 == 0) dayButton.setBackground(new Color(255, 180, 90)); // 임박
-            else dayButton.setBackground(new Color(144, 238, 144)); // 정상
+            LocalDate date = LocalDate.of(year, month, day);
+            List<Food> todayFoods = getFoodsByDate(date);
 
-            // 클릭 시 팝업
-            dayButton.addActionListener(e -> {
-                String msg = "📦 " + dayButton.getText() + "일 제품 목록\n" +
-                        "- 우유 (D-2)\n" +
-                        "- 김치 (D-5)\n" +
-                        "- 계란 (D-8)";
-                JOptionPane.showMessageDialog(frame, msg, "제품 상세보기", JOptionPane.INFORMATION_MESSAGE);
+            JButton btn = new JButton(String.valueOf(day));
+
+            // 🔥 색상 적용 (DB 기반)
+            btn.setBackground(determineColor(todayFoods, date));
+
+            // 🔥 클릭 시 팝업
+            btn.addActionListener(e -> {
+                List<Food> list = getFoodsByDate(date);
+
+                if (list.isEmpty()) {
+                    JOptionPane.showMessageDialog(frame, "등록된 식품 없음");
+                    return;
+                }
+
+                StringBuilder sb = new StringBuilder();
+                sb.append("📦 ").append(date).append(" 유통기한 목록\n\n");
+
+                for (Food f : list) {
+                    long dday = ChronoUnit.DAYS.between(LocalDate.now(), f.getExpireDate());
+                    sb.append("- ").append(f.getName())
+                      .append(" (D-").append(dday).append(")\n");
+                }
+
+                JOptionPane.showMessageDialog(frame, sb.toString());
             });
 
-            calendarPanel.add(dayButton);
-        }
-
-        // 나머지 빈칸 채우기
-        int totalCells = 42; // 6행*7열
-        int usedCells = dayIndex + daysInMonth;
-        for (int i = usedCells; i < totalCells; i++) {
-            calendarPanel.add(new JLabel(""));
+            calendarPanel.add(btn);
         }
 
         calendarPanel.revalidate();
         calendarPanel.repaint();
     }
 
-    // 버튼 스타일
-    private void styleButton(JButton btn) {
-        btn.setBackground(new Color(220, 230, 250));
-        btn.setFocusPainted(false);
-        btn.setFont(new Font("맑은 고딕", Font.BOLD, 16));
+    // 📌 색상 결정 로직 (DB 연동OK)
+    private Color determineColor(List<Food> foods, LocalDate date) {
+
+        if (foods.isEmpty()) return new Color(215, 234, 215); // 기본색
+
+        // 임박 / 만료 기준 중 가장 촉박한 것을 기준으로 결정
+        long minDday = Long.MAX_VALUE;
+
+        for (Food f : foods) {
+            long dday = ChronoUnit.DAYS.between(LocalDate.now(), f.getExpireDate());
+            if (dday < minDday) {
+                minDday = dday;
+            }
+        }
+
+        if (minDday < 0) return new Color(255, 102, 102);   // 만료 (빨강)
+        if (minDday <= 3) return new Color(255, 180, 90);   // 임박 (주황)
+        return new Color(144, 238, 144);                    // 정상 (초록)
     }
 
-    private JPanel makeLegend(Color color, String label) {
-        JPanel legend = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 2));
-        legend.setOpaque(false);
-        JLabel colorBox = new JLabel("■");
-        colorBox.setForeground(color);
-        JLabel text = new JLabel(label);
-        text.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
-        legend.add(colorBox);
-        legend.add(text);
-        return legend;
-    }
-
+    // 🔥 테스트용 실행 (DB 연동 전에도 동작됨)
     public static void main(String[] args) {
-        new calendarr();
+
+        // DB 연결 전 임시 테스트 데이터 (추후 삭제)
+        List<Food> testFoods = new ArrayList<>();
+        testFoods.add(new Food("우유", LocalDate.now().plusDays(2)));
+        testFoods.add(new Food("계란", LocalDate.now().plusDays(5)));
+        testFoods.add(new Food("김치", LocalDate.now().minusDays(1)));
+
+        new CalendarDB(testFoods);
     }
 }
