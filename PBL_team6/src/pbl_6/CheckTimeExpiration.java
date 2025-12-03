@@ -31,7 +31,7 @@ public class CheckTimeExpiration implements ActionListener{
 			
 		}
 		if(!alarmIndex.isEmpty()) { //인덱스 비어있지 않는 경우 실행
-			//AlarmExpirationDate alarm = new alarmExpirationDate(foodManage, alarmIndex);
+			AlarmExpirationDate alarm = new AlarmExpirationDate(foodManage, alarmIndex);
 		}
 	}
 }

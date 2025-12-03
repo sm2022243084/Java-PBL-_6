@@ -6,4 +6,12 @@ public class Food {
 	String type;
 	LocalDate expirationDate;
 	int volume;
+	
+	public LocalDate getExpirationDate() {
+        return this.expirationDate;
+    }
+    
+    public String getName() {
+        return this.name;
+    }
 }
