@@ -41,7 +41,7 @@ public class AddFoodDialog extends JDialog {
         c.gridx=1; c.weightx=1.0; main.add(nameField, c);
 
         c.gridx=0; c.gridy=++y; c.weightx=0; main.add(new JLabel("종류(Type)"), c);
-        typeCombo = new JComboBox<>(new String[]{"vegetable","fruit","dairy","meat","fish","etc"});
+        typeCombo = new JComboBox<>(new String[]{"채소","과일","유제품","육류","생선","기타"});
         c.gridx=1; c.weightx=1.0; main.add(typeCombo, c);
 
         c.gridx=0; c.gridy=++y; c.weightx=0; main.add(new JLabel("수량(volume)"), c);

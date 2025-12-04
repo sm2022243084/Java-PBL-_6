@@ -28,7 +28,7 @@ public class FoodManage {
         // 화면 표시용 변수 (JTable)
         JTable table;
         DefaultTableModel tableModel;
-        String[] colNames = { "식품명", "종류", "수량", "유통기한"};
+        String[] colNames = {"ID", "식품명", "종류", "수량", "유통기한"};
 
         public MainFrame() {
             // 1. DB 연결 및 DAO 초기화
@@ -145,7 +145,7 @@ public class FoodManage {
             for (Food f : allData) {
                 // (1) 화면(JTable)에 추가
                 tableModel.addRow(new Object[]{
-                    //f.id, 
+                    f.id, 
                     f.name, 
                     f.type, 
                     f.volume, 
@@ -185,7 +185,7 @@ public class FoodManage {
                 
                 while(result.next()) { 
                     Food food = new Food();
-                    //food.id = result.getString("ID"); 
+                    food.id = result.getString("ID"); 
                     food.name = result.getString("Name"); 
                     food.volume = result.getInt("volume");
                     food.type = result.getString("Type");

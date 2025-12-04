@@ -130,7 +130,7 @@ public class FoodDAO {
         if (d != null) exp = d.toLocalDate();
 
         Food f = new Food();
-        //f.id = String.valueOf(rs.getInt("ID"));
+        f.id = String.valueOf(rs.getInt("ID"));
         f.name = rs.getString("Name");
         f.volume = rs.getInt("volume");
         f.type = rs.getString("Type");
