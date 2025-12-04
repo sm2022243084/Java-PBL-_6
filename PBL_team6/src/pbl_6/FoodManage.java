@@ -169,7 +169,7 @@ public class FoodManage {
         Connection connection; 
         String url = "jdbc:mysql://localhost:3306/foodmanage?serverTimezone=UTC";
         String id = "root";
-        String pw = "Nataehun1@";
+        String pw = "";
         
         Statement stmt;
         ResultSet result;
